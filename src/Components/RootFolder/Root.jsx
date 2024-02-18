@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 
 const Root = () => {
     return (
-        <div className='bg-gray-300'>
+        <div className='bg-slate-200'>
             
             <Outlet></Outlet>
         </div>
