@@ -1,9 +1,42 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SharedHeading from "../SharedComponents/SharedHeading";
 import { FaGoogle } from "react-icons/fa";
 import { motion } from "framer-motion";
-
+import { useForm } from "react-hook-form"
+import { useContext } from "react";
+import { AuthContext } from "./Provider/AuthProvider";
+import { updateProfile } from "firebase/auth";
+import Swal from "sweetalert2";
 const Register = () => {
+    const { user, createUser, logOut } = useContext(AuthContext)
+    const { register, handleSubmit, reset, formState: { errors } } = useForm()
+    const navigate=useNavigate()
+    const onSubmit = (data) => {
+        console.log(data)
+        createUser(data.email, data.password)
+            .then(result => {
+                console.log(result)
+                updateProfile(result.user, {
+                    displayName: data.name,
+                    photoURL: data.photoURL
+                })
+                    .then(() => {
+                        Swal.fire("User Created Successfully!");
+                        reset()
+                        logOut()
+                            .then()
+                            .catch(error => console.log(error))
+                        navigate('/')    
+                    })
+                    .catch(error => {
+                        console.error(error.message)
+                    })
+
+            })
+            .catch(error => {
+                console.error(error)
+            })
+    }
     return (
         <div className="py-20  bg-slate-200  mx-auto ">
             <SharedHeading heading={'Register Now!!'} />
@@ -23,32 +56,47 @@ const Register = () => {
                         <h1>Welcome to <span className="text-[#62760C]">Sustain Flow</span>!!!</h1>
                         <p>Create an account to explore the insights</p>
                     </div>
-                    <form className="card-body">
+                    <form onSubmit={handleSubmit(onSubmit)} className="card-body">
                         <div className="grid md:grid-cols-2 grid-cols-1  gap-4">
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Your Name</span>
                                 </label>
-                                <input type="text" placeholder="name" className="input input-bordered" required />
+                                <input {...register('name', { required: true })} type="text" placeholder="name" className="input input-bordered" />
+                                {errors.name && <span>This field is required</span>}
                             </div>
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Photo URL</span>
                                 </label>
-                                <input type="text" placeholder="photo url" className="input input-bordered" required />
+                                <input {...register("photoURL", { required: true })} type="text" placeholder="photo url" className="input input-bordered" required />
+                                {errors.photoURL && <span>This field is required</span>}
                             </div>
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Your Email</span>
                                 </label>
-                                <input type="email" placeholder="email" className="input input-bordered" required />
+                                <input {...register("email", { required: true })} type="email" placeholder="email" className="input input-bordered" required />
+                                {errors.email && <span>This field is required</span>}
                             </div>
 
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Password</span>
                                 </label>
-                                <input type="password" placeholder="password" className="input input-bordered" required />
+                                <input {...register("password", { required: true, maxLength: 16, minLength: 6, pattern: /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])/ })} type="password" placeholder="password" className="input input-bordered" required />
+                                {errors.password?.type === "required" && (
+                                    <p className="text-red-600">Password is required</p>
+                                )}
+                                {errors.password?.type === "minLength" && (
+                                    <p className="text-red-600">Password length should be at least 6 characters</p>
+                                )}
+                                {errors.password?.type === "maxLength" && (
+                                    <p className="text-red-600">Password length should be maximum 16 characters</p>
+                                )}
+                                {errors.password?.type === "pattern" && (
+                                    <p className="text-red-600">Password length should contain 1 number,1 special character,1 uppercase and 1 lowercase</p>
+                                )}
 
                             </div>
                         </div>
