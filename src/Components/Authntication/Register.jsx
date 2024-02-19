@@ -8,9 +8,9 @@ import { AuthContext } from "./Provider/AuthProvider";
 import { updateProfile } from "firebase/auth";
 import Swal from "sweetalert2";
 const Register = () => {
-    const { user, createUser, logOut } = useContext(AuthContext)
+    const { createUser, logOut, googleSignIn } = useContext(AuthContext)
     const { register, handleSubmit, reset, formState: { errors } } = useForm()
-    const navigate=useNavigate()
+    const navigate = useNavigate()
     const onSubmit = (data) => {
         console.log(data)
         createUser(data.email, data.password)
@@ -26,7 +26,7 @@ const Register = () => {
                         logOut()
                             .then()
                             .catch(error => console.log(error))
-                        navigate('/')    
+                        navigate('/')
                     })
                     .catch(error => {
                         console.error(error.message)
@@ -35,6 +35,20 @@ const Register = () => {
             })
             .catch(error => {
                 console.error(error)
+            })
+    }
+    const handleGoogleSignUp = () => {
+        googleSignIn()
+            .then(result => {
+                console.log(result.user)
+                Swal.fire({
+                    title: `${result.user.displayName} created an account Successfully`,
+                    timer: 1500
+                });
+                logOut()
+                    .then()
+                    .catch(error => console.log(error))
+                navigate('/')
             })
     }
     return (
@@ -111,7 +125,7 @@ const Register = () => {
                     <div className="divider">OR
                         Sign up with</div>
                     <div className="flex flex-col py-10 items-center">
-                        <button className="btn bg-[#523906] text-white"><FaGoogle />Google </button>
+                        <button onClick={handleGoogleSignUp} className="btn bg-[#523906] text-white"><FaGoogle />Google </button>
                     </div>
 
                 </motion.div>

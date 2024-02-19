@@ -1,11 +1,34 @@
+import { useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "../../Authntication/Provider/AuthProvider";
+import Swal from "sweetalert2";
 
 
 const Navbar = () => {
-    const links=<>
-        <NavLink to='/' className={({isActive})=>(isActive? 'text-[#CDB30C] text-xl font-semibold mr-4':'text-white text-xl font-semibold mr-4')}>Home</NavLink>    
-        <NavLink to='/dashboard' className={({isActive})=>(isActive? 'text-[#CDB30C] text-xl font-semibold mr-4':'text-white text-xl font-semibold mr-4')}>Dashboard</NavLink>    
-        <NavLink to='/login' className={({isActive})=>(isActive? 'text-[#CDB30C] text-xl font-semibold mr-4':'text-white text-xl font-semibold mr-4')}>Login</NavLink>    
+    const { user, logOut } = useContext(AuthContext)
+
+    const handleLogOut = () => {
+        logOut()
+            .then(() => {
+                Swal.fire({
+                    title: `${user.displayName} Logged Out`,
+                    timer: 1500
+                })
+            })
+            .catch()
+    }
+
+    const links = <>
+        <NavLink to='/' className={({ isActive }) => (isActive ? 'text-[#CDB30C] text-xl font-semibold mr-4' : 'text-white text-xl font-semibold mr-4')}>Home</NavLink>
+        <NavLink to='/dashboard' className={({ isActive }) => (isActive ? 'text-[#CDB30C] text-xl font-semibold mr-4' : 'text-white text-xl font-semibold mr-4')}>Dashboard</NavLink>
+        {
+            user ?
+                <><NavLink onClick={handleLogOut} className={({ isActive }) => (isActive ? 'text-[#CDB30C] text-xl font-semibold mr-4' : 'text-white text-xl font-semibold mr-4')}>Logout</NavLink>
+
+                </> :
+                <>
+                    <NavLink to='/login' className={({ isActive }) => (isActive ? 'text-[#CDB30C] text-xl font-semibold mr-4' : 'text-white text-xl font-semibold mr-4')}>Login</NavLink></>
+        }
     </>
     return (
         <div className=" p-10 lg:w-[1280px] lg:mx-auto mx-10">
